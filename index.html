@@ -568,6 +568,8 @@
        ======================================================= */
     .menu-esencial {background: radial-gradient(ellipse at 15% 0%,rgba(255,206,0,.07),transparent 55%),var(--fondo-2);}
     .menu-cabecera {margin-bottom:32px}
+    /* Título con el mismo amarillo de los controles de la carta. */
+    .menu-cabecera .titulo-seccion {color:var(--principal)}
     .categorias-pestanas {display:flex;flex-wrap:wrap;gap:12px;margin-bottom:28px;scroll-margin-top:100px}
     .pestana-menu {cursor:pointer;display:flex;align-items:center;gap:9px;padding:13px 19px;border:1.5px solid #484848;border-radius:999px;background:#191919;color:#eee;font-weight:800;transition:border-color .25s,transform .25s,box-shadow .25s,background .25s}
     .pestana-menu:hover {border-color:var(--principal);transform:translateY(-2px)}
@@ -1364,7 +1366,7 @@
     [...new Set(PRODUCTOS.map(p=>p.categoria))].forEach(cat=>{
       const boton=document.createElement("button");
       boton.type="button";boton.className="pestana-menu";
-      boton.textContent=cat;
+      boton.textContent=`${ICONOS[cat] || "🍽️"}  ${cat}`;
       boton.dataset.categoria=cat;
       boton.addEventListener("click", () => activarCategoria(cat));
       contenedorPestanas.append(boton);
