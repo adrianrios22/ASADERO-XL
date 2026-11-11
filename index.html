@@ -1344,20 +1344,15 @@
     let elegido = null;
 
     /* ========================================================
-       GUARDAR Y RECUPERAR EL CARRITO
+       CARRITO DE LA VISITA ACTUAL
+       Al recargar se inicia vacío. Elimina pedidos guardados
+       por las versiones anteriores de la página.
        ======================================================== */
     try {
-      const guardado = JSON.parse(localStorage.getItem("asadero-xl-economy-carrito") || "[]");
-      if(Array.isArray(guardado)) guardado.forEach(x => {
-        if(PRODUCTOS.some(p=>p.id===x.id) && Number.isInteger(x.cantidad) && x.cantidad>0 && x.cantidad<=100) {
-          const key = `${x.id}||${x.nota || ""}`;
-          carrito.set(key,{id:x.id,nota:String(x.nota||"").slice(0,180),cantidad:x.cantidad});
-        }
-      });
-    } catch(err) { console.warn("No se pudo recuperar el carrito",err); }
-    const guardar = () => {
-      try { localStorage.setItem("asadero-xl-economy-carrito",JSON.stringify([...carrito.values()])); } catch(err) {}
-    };
+      localStorage.removeItem("asadero-xl-economy-carrito");
+    } catch (error) {
+      // El carrito funciona aunque el navegador bloquee el almacenamiento.
+    }
 
     /* ========================================================
        CATEGORÍAS ACTIVAS - BORDE QUE CAMBIA DE COLOR
@@ -1427,7 +1422,7 @@
           const n=nota.value.trim();const key=`${p.id}||${n}`;
           const anterior=carrito.get(key);
           carrito.set(key,{id:p.id,nota:n,cantidad:(anterior?.cantidad||0)+1});
-          guardar();actualizarCarrito();volarAlCarrito(agregar);
+          actualizarCarrito();volarAlCarrito(agregar);
           agregar.textContent="✓ Agregado";
           setTimeout(()=>{elegido=null;renderizarMenu();},450);
         });
@@ -1450,7 +1445,7 @@
       const item=carrito.get(key);if(!item)return;
       item.cantidad+=delta;
       if(item.cantidad<=0)carrito.delete(key);
-      guardar();actualizarCarrito();
+      actualizarCarrito();
     }
     function actualizarCarrito() {
       lista.replaceChildren();let cantidad=0,total=0;
@@ -1537,6 +1532,16 @@
         "Se abrirá WhatsApp con el pedido listo. Pulsa Enviar para confirmarlo. Domicilio: $2.000; recoger en el local: $0.";
     }
     renderizarMenu();actualizarCarrito();
+
+    // Iniciar un pedido nuevo al volver desde el historial del navegador.
+    window.addEventListener("pageshow", event => {
+      if (!event.persisted) return;
+      carrito.clear();
+      elegido = null;
+      cerrar();
+      renderizarMenu();
+      actualizarCarrito();
+    });
   })();
   </script>
 
