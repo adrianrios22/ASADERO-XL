@@ -734,17 +734,17 @@
        ======================================================== */
     :root {--principal:#ffe600;--principal-claro:#fff04d;--fondo:#000;--fondo-2:#000}
     .solo-lectores {position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-    .hero.portada-aprobada {display:block;position:relative;width:100%;max-width:800px;min-height:0;aspect-ratio:887 / 1330;margin:0 auto;padding:0;overflow:hidden;background:#000}
+    .hero.portada-aprobada {display:block;position:relative;width:100%;max-width:800px;min-height:0;aspect-ratio:909 / 1493;margin:0 auto;padding:0;overflow:hidden;background:#000}
     .hero.portada-aprobada::before,.hero.portada-aprobada::after {display:none}
     .portada-arte {position:absolute;display:block;top:0;left:0;width:100%;height:auto;max-width:none}
-    .header-portada {position:absolute;top:0;left:0;width:100%;height:11.5%;z-index:10;background:transparent;border:0;backdrop-filter:none}
+    .header-portada {position:absolute;top:0;left:0;width:100%;height:7.5%;z-index:10;background:transparent;border:0;backdrop-filter:none}
     .logo-enlace {position:absolute;left:4%;top:3%;width:61%;height:94%;border-radius:10px}
     .header-portada .menu-movil {display:block;position:absolute;right:3%;top:15%;width:12%;height:69%;background:transparent;border:0;padding:0;cursor:pointer}
     .header-portada .nav-links {display:none;position:absolute;top:100%;right:3%;width:230px;padding:15px;flex-direction:column;gap:0;align-items:stretch;background:rgba(0,0,0,.97);border:1px solid var(--principal);border-radius:14px;box-shadow:0 12px 28px #000a}
     .header-portada .nav-links.activo {display:flex}
     .header-portada .nav-links a {padding:12px 16px;border-radius:8px}
     .header-portada .nav-links a:hover {background:#252200}
-    .cta-portada {position:absolute;left:25.7%;top:45.2%;width:48.6%;height:7.2%;border-radius:999px;cursor:pointer}
+    .cta-portada {position:absolute;left:25.6%;top:90.7%;width:48.8%;height:6.3%;border-radius:999px;cursor:pointer}
     .cta-portada:hover {box-shadow:0 0 25px #ffe60088}
     .cta-portada:focus-visible,.logo-enlace:focus-visible,.menu-movil:focus-visible {outline:3px solid white;outline-offset:-3px}
     /* La carta usa la tipografía y los controles de la plantilla base. */
@@ -782,10 +782,10 @@
          La imagen externa conserva exactamente la composición y la tipografía aprobadas.
          Se muestra solo la portada: las categorías y los platos de abajo son HTML interactivo.
          Los enlaces transparentes activan el logo, el menú y el botón dibujados en la portada.
-         Para cambiar la fotografía o el copy gráfico, reemplazar images/portada-asadero-xl.png.
+         Para cambiar la fotografía o el copy gráfico, reemplazar images/hero-asadero-xl.png.
     -->
     <section class="hero portada-aprobada" id="inicio" aria-labelledby="tituloPortada">
-      <img class="portada-arte" src="images/portada-asadero-xl.png" width="887" height="1774"
+      <img class="portada-arte" src="images/hero-asadero-xl.png" width="909" height="1730"
            alt="" fetchpriority="high" decoding="async">
       <header class="header-portada">
         <a href="#inicio" class="logo-enlace" aria-label="Asadero XL Donde el Profe, inicio"></a>
@@ -831,7 +831,9 @@
             <div id="listaCarrito" class="carrito-productos"><p class="carrito-vacio">Aún no has elegido productos.</p></div>
             <div class="carrito-pie">
               <div class="carrito-subtotal"><span>Subtotal</span><strong id="totalCarrito">$0</strong></div>
-              <p class="carrito-nota">El valor del domicilio se confirma con el restaurante.</p>
+              <div class="carrito-subtotal" style="margin-top:8px;font-size:14px"><span>Domicilio</span><span id="domicilioCarrito">$0</span></div>
+              <div class="carrito-subtotal" style="margin-top:8px"><span>Total</span><strong id="totalPedidoCarrito">$0</strong></div>
+              <p class="carrito-nota">Domicilio: $2.000. Recoger en el local: sin costo de envío.</p>
               <button class="boton boton-finalizar" id="botonFinalizar" type="button">Continuar pedido →</button>
             </div>
           </aside>
@@ -1013,6 +1015,11 @@
      ======================================================== */
   (() => {
     const WHATSAPP = "573167203385";
+    // Tarifa fija para todos los domicilios. Recoger en el local no tiene cargo.
+    const PRECIO_DOMICILIO = 2000;
+    function calcularDomicilio(subtotal, tipoEntrega) {
+      return subtotal > 0 && tipoEntrega === "Domicilio" ? PRECIO_DOMICILIO : 0;
+    }
     const whatsappDisponible = /^[1-9]\d{7,14}$/.test(WHATSAPP);
     const RESTAURANTE = "ASADERO XL DONDE EL PROFE";
 
@@ -1468,8 +1475,13 @@
       document.getElementById("cantidadMovil").textContent=cantidad;
       document.getElementById("insigniaMovil").textContent=cantidad;
       document.getElementById("palabraProductosMovil").textContent=cantidad===1?"producto":"productos";
-      document.getElementById("totalMovil").textContent=formato(total);
-      document.getElementById("resumenVentana").textContent=`${cantidad} producto(s) · Subtotal ${formato(total)}`;
+      const tipoEntrega = document.getElementById("entregaPedido").value || "Domicilio";
+      const costoEnvio = calcularDomicilio(total, tipoEntrega);
+      const totalPedido = total + costoEnvio;
+      document.getElementById("domicilioCarrito").textContent=formato(costoEnvio);
+      document.getElementById("totalPedidoCarrito").textContent=formato(totalPedido);
+      document.getElementById("totalMovil").textContent=formato(totalPedido);
+      document.getElementById("resumenVentana").textContent=`${cantidad} producto(s) · Subtotal ${formato(total)} · Domicilio ${formato(costoEnvio)} · Total ${formato(totalPedido)}`;
     }
 
     /* ========================================================
@@ -1503,7 +1515,7 @@
     capa.addEventListener("click",e=>{if(e.target===capa)cerrar()});
     document.addEventListener("keydown",e=>{if(e.key==="Escape")cerrar()});
     const entrega=document.getElementById("entregaPedido"),direccion=document.getElementById("direccionPedido"),campo=document.getElementById("campoDireccion");
-    entrega.addEventListener("change",()=>{const domicilio=entrega.value==="Domicilio";campo.hidden=!domicilio;direccion.required=domicilio;});
+    entrega.addEventListener("change",()=>{const domicilio=entrega.value==="Domicilio";campo.hidden=!domicilio;direccion.required=domicilio;actualizarCarrito();});
     document.getElementById("formularioPedido").addEventListener("submit",e=>{
       e.preventDefault();
       if (!whatsappDisponible) return;
@@ -1514,13 +1526,15 @@
         const subtotal=p.precio*item.cantidad;total+=subtotal;
         lineas.push(`${item.cantidad} x ${nombreEnPedido(p)}: ${formato(subtotal)}${item.nota?`\n   Nota: ${item.nota}`:""}`);
       });
-      const mensaje=[`🔥 *NUEVO PEDIDO - ${RESTAURANTE}*`,"","*PRODUCTOS*",...lineas,"",`*Subtotal:* ${formato(total)}`,"*Domicilio:* Por confirmar","",`*Nombre:* ${d.get("nombre")}`,`*Teléfono:* ${d.get("telefono")}`,`*Entrega:* ${d.get("entrega")}`,...(d.get("entrega")==="Domicilio"?[`*Dirección:* ${d.get("direccion")}`]:[]),`*Pago:* ${d.get("pago")}`,`*Observaciones:* ${d.get("notas")||"Ninguna"}`,"","Por favor confirma disponibilidad y total final. ¡Gracias!"].join("\n");
+      const costoEnvio = calcularDomicilio(total, d.get("entrega"));
+      const totalPedido = total + costoEnvio;
+      const mensaje=[`🔥 *NUEVO PEDIDO - ${RESTAURANTE}*`,"","*PRODUCTOS*",...lineas,"",`*Subtotal:* ${formato(total)}`,`*Domicilio:* ${formato(costoEnvio)}`,`*Total:* ${formato(totalPedido)}`,"",`*Nombre:* ${d.get("nombre")}`,`*Teléfono:* ${d.get("telefono")}`,`*Entrega:* ${d.get("entrega")}`,...(d.get("entrega")==="Domicilio"?[`*Dirección:* ${d.get("direccion")}`]:[]),`*Pago:* ${d.get("pago")}`,`*Observaciones:* ${d.get("notas")||"Ninguna"}`,"","Por favor confirma disponibilidad del pedido. ¡Gracias!"].join("\n");
       window.location.href=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
     });
     if (whatsappDisponible) {
       document.getElementById("enviarPedido").disabled = false;
       document.getElementById("avisoPedido").textContent =
-        "Se abrirá WhatsApp con el pedido listo. Pulsa Enviar para confirmarlo. Domicilio por confirmar.";
+        "Se abrirá WhatsApp con el pedido listo. Pulsa Enviar para confirmarlo. Domicilio: $2.000; recoger en el local: $0.";
     }
     renderizarMenu();actualizarCarrito();
   })();
